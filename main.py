@@ -16,6 +16,7 @@ import langsmith
 from langchain_openai import ChatOpenAI
 
 from agent import AgentFactory, AgentConfig
+from context_manager import ContextManager
 from utils import (
     load_config, 
     save_conversation, 
@@ -28,8 +29,9 @@ from utils import (
 # Load configuration
 config = load_config()
 
-# Initialize the agent factory
+# Initialize the agent factory and context manager
 agent_factory = AgentFactory()
+context_manager = ContextManager()
 
 # Initialize global variables
 current_agent = None
@@ -118,9 +120,21 @@ def update_context_display(context_info: Dict) -> None:
             ui.label("Context Awareness").classes('text-lg font-bold mb-2')
             
             if context_info.get("enabled"):
-                ui.label(f"🔍 Energy Level: {context_info.get('energy', 'Unknown')}").classes('mb-1')
-                ui.label(f"📊 Confidence: {context_info.get('confidence', 0):.1%}").classes('mb-1')
+                energy = context_info.get('energy', 'Unknown')
+                confidence = context_info.get('confidence', 0)
+                reasoning = context_info.get('reasoning', 'No reasoning available')
+                
+                # Energy level with color coding
+                energy_color = {
+                    'high': 'text-red-600',
+                    'medium': 'text-yellow-600', 
+                    'low': 'text-blue-600'
+                }.get(energy, 'text-gray-600')
+                
+                ui.label(f"🔍 Energy Level: {energy.title()}").classes(f'mb-1 {energy_color} font-semibold')
+                ui.label(f"📊 Confidence: {confidence:.1%}").classes('mb-1')
                 ui.label(f"🎯 Adaptation: {context_info.get('adaptation', 'None')}").classes('mb-1')
+                ui.label(f"💭 Reasoning: {reasoning}").classes('mb-1 text-sm text-gray-600')
             else:
                 ui.label("Context awareness disabled").classes('text-gray-500')
 
@@ -139,25 +153,27 @@ async def handle_user_message(content: str) -> None:
     # Clear the input field
     message_input.value = ""
     
-    # NEW: Detect context if enabled (placeholder for now)
+    # NEW: Detect context if enabled
     context_info = None
     if current_agent_config and current_agent_config.context_awareness.get("enabled"):
-        # Simple energy detection placeholder
-        energy = "medium"  # Will be replaced with actual detection
-        if "!" in content or "excited" in content.lower() or "motivated" in content.lower():
-            energy = "high"
-        elif "tired" in content.lower() or "maybe" in content.lower() or "not sure" in content.lower():
-            energy = "low"
+        # Use ContextManager for real energy detection
+        detection_result = context_manager.detect_energy_level(content)
         
         context_info = {
             "enabled": True,
-            "energy": energy,
-            "confidence": 0.8,
-            "adaptation": f"Adjusted for {energy} energy"
+            "energy": detection_result["energy"],
+            "confidence": detection_result["confidence"],
+            "reasoning": detection_result["reasoning"],
+            "adaptation": f"Adjusted for {detection_result['energy']} energy"
         }
         
         # Update context display
         update_context_display(context_info)
+        
+        # Log the detection for debugging
+        logger.info(f"Energy detected: {detection_result['energy']} "
+                   f"(confidence: {detection_result['confidence']:.2f}) "
+                   f"for input: '{content[:50]}...'")
     
     # Add the user message to the conversation
     add_message("user", content, context_info)
