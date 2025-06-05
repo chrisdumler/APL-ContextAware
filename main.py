@@ -57,26 +57,32 @@ def format_message(message: Dict[str, Any]) -> ui.element:
     """
     is_user = message.get("role") == "user"
     
-    with ui.card().classes('w-full mb-2'):
-        with ui.row().classes('w-full items-center'):
-            ui.icon('person' if is_user else 'smart_toy').classes('text-2xl mr-2')
-            ui.label(message.get("role", "unknown").capitalize()).classes('font-bold')
-            ui.label(message.get("timestamp", "")).classes('text-xs text-gray-500 ml-2')
+    with ui.card().classes('message-card w-full'):
+        with ui.row().classes('w-full items-center mb-2'):
+            ui.icon('person' if is_user else 'smart_toy').classes('text-2xl mr-3')
+            ui.label(message.get("role", "unknown").capitalize()).classes('font-bold text-gray-700')
+            ui.label(message.get("timestamp", "")).classes('text-xs text-gray-500 ml-auto')
         
-        with ui.row().classes('w-full mt-2'):
-            ui.label(message.get("content", "")).classes('whitespace-pre-wrap')
+        with ui.row().classes('w-full'):
+            ui.label(message.get("content", "")).classes('whitespace-pre-wrap text-gray-800 leading-relaxed')
         
-        # NEW: Show context information if available
+        # Enhanced context information display
         if message.get("context_info"):
-            with ui.row().classes('w-full mt-2'):
-                ui.label("Context:").classes('font-bold text-blue-600')
-                ui.label(f"Energy: {message['context_info'].get('energy', 'unknown')}").classes('ml-2 text-blue-500')
+            with ui.row().classes('w-full mt-3 p-2 bg-blue-50 rounded-lg border-l-4 border-blue-400'):
+                ui.label("Context:").classes('font-semibold text-blue-700 mr-2')
+                energy = message['context_info'].get('energy', 'unknown')
+                energy_color = {
+                    'high': 'text-red-600 bg-red-100',
+                    'medium': 'text-yellow-600 bg-yellow-100', 
+                    'low': 'text-blue-600 bg-blue-100'
+                }.get(energy, 'text-gray-600 bg-gray-100')
+                ui.label(f"{energy.title()} Energy").classes(f'px-2 py-1 rounded text-sm font-medium {energy_color}')
         
         if not is_user and "evaluation" in message:
-            with ui.row().classes('w-full mt-2'):
-                ui.label("Evaluation:").classes('font-bold')
-                ui.label(message["evaluation"].get("rating", "Not rated")).classes('ml-2')
-                ui.label(message["evaluation"].get("feedback", "")).classes('ml-2')
+            with ui.row().classes('w-full mt-2 p-2 bg-gray-50 rounded'):
+                ui.label("Evaluation:").classes('font-bold text-gray-700')
+                ui.label(message["evaluation"].get("rating", "Not rated")).classes('ml-2 text-gray-600')
+                ui.label(message["evaluation"].get("feedback", "")).classes('ml-2 text-gray-600')
 
 def add_message(role: str, content: str, context_info: Dict = None) -> None:
     """
@@ -337,6 +343,7 @@ def rate_message(message_index: int, rating: int, feedback: str = "") -> None:
 # Enhanced CSS for context awareness
 ui.add_head_html("""
 <style>
+/* Improved responsive design */
 @media (max-width: 768px) {
     .grid-cols-12 {
         grid-template-columns: 1fr !important;
@@ -344,11 +351,44 @@ ui.add_head_html("""
     .col-span-3, .col-span-9, .col-span-6 {
         grid-column: span 12 !important;
     }
+    .main-container {
+        gap: 0.5rem !important;
+        padding: 0.5rem !important;
+    }
 }
 
+@media (min-width: 1200px) {
+    .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+}
+
+/* Enhanced context panel styling */
 .context-panel {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+/* Improved configuration panel */
+.config-panel {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+/* Enhanced chat area */
+.chat-area {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    overflow: hidden;
 }
 
 .chat-input-container {
@@ -357,20 +397,93 @@ ui.add_head_html("""
     background: white;
     z-index: 10;
     border-top: 1px solid #e5e7eb;
+    padding: 1rem;
 }
 
 .chat-scroll-container {
-    height: calc(100% - 60px);
+    height: calc(100% - 80px);
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    padding: 1rem;
+    background: #f9fafb;
+}
+
+/* Header improvements */
+.main-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Settings button improvements */
+.settings-button {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.settings-button:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: translateY(-1px);
+}
+
+/* Message styling improvements */
+.message-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Layout spacing improvements */
+.main-container {
+    gap: 1.25rem;
+    padding: 1.25rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+/* Form improvements */
+.input-field {
+    border-radius: 8px !important;
+    border: 1px solid #d1d5db !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 1rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.input-field:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.send-button {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.75rem 1.5rem !important;
+    color: white !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.send-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 </style>
 """)
 
 def toggle_config_panel():
     config_panel.visible = not config_panel.visible
-    # Adjust layout based on config panel visibility
+    # Adjust layout based on config panel visibility with improved responsive behavior
     if config_panel.visible:
         chat_area.classes('col-span-6', remove='col-span-9')
         context_panel.classes('col-span-3', remove='col-span-3')
@@ -379,24 +492,24 @@ def toggle_config_panel():
     
     ui.update()
 
-# Create the enhanced UI
-with ui.grid().classes('w-full h-screen grid-cols-12 gap-4 p-4'):
-    # Header spanning full width
-    with ui.row().classes('col-span-12 flex items-center justify-between mb-2'):
-        ui.label("APL Context-Aware: Sophisticated Agent Platform").classes('text-2xl font-bold')
-        config_toggle = ui.button(icon='settings').classes('text-lg')
+# Create the enhanced UI with improved layout
+with ui.grid().classes('w-full h-screen grid-cols-12 main-container'):
+    # Enhanced header spanning full width
+    with ui.row().classes('col-span-12 main-header flex items-center justify-between'):
+        ui.label("APL Context-Aware: Sophisticated Agent Platform").classes('text-xl md:text-2xl font-bold')
+        config_toggle = ui.button(icon='settings').classes('settings-button')
         config_toggle.on_click(toggle_config_panel)
     
-    # Config panel (collapsible)
-    config_panel = ui.column().classes('col-span-3 p-4 bg-gray-100 rounded-lg flex flex-col h-[calc(100vh-100px)]')
+    # Enhanced config panel (collapsible)
+    config_panel = ui.column().classes('col-span-3 config-panel flex flex-col h-[calc(100vh-140px)]')
     with config_panel:
-        ui.label("Agent Configuration").classes('text-xl font-bold mb-4')
+        ui.label("Agent Configuration").classes('text-xl font-bold mb-4 text-gray-800')
         
         agent_config_select = ui.select(
             options=list_agent_configs(),
             value=list_agent_configs()[0] if list_agent_configs() else None,
             on_change=lambda e: handle_agent_config_change(e.value)
-        ).classes('w-full mb-4')
+        ).classes('w-full mb-4 input-field')
         
         with ui.column().classes('w-full flex-grow overflow-y-auto'):
             agent_info_container = ui.column().classes('w-full')
@@ -404,20 +517,22 @@ with ui.grid().classes('w-full h-screen grid-cols-12 gap-4 p-4'):
         if agent_config_select.value:
             handle_agent_config_change(agent_config_select.value)
     
-    # NEW: Context awareness panel
-    context_panel = ui.column().classes('col-span-3 p-4 context-panel rounded-lg flex flex-col h-[calc(100vh-100px)]')
+    # Enhanced context awareness panel
+    context_panel = ui.column().classes('col-span-3 context-panel flex flex-col h-[calc(100vh-140px)]')
     with context_panel:
         context_display_container = ui.column().classes('w-full')
+        # Initialize with placeholder content
+        ui.label("Context Awareness").classes('text-lg font-bold mb-2')
+        ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-80')
     
-    # Main content area - chat interface (adjusted width)
-    chat_area = ui.column().classes('col-span-6 flex flex-col h-[calc(100vh-100px)] relative')
+    # Enhanced main content area - chat interface
+    chat_area = ui.column().classes('col-span-6 chat-area flex flex-col h-[calc(100vh-140px)] relative')
     with chat_area:
-        chat_container = ui.column().classes('w-full overflow-y-auto p-4 bg-gray-50 rounded-t-lg')
-        chat_container.style('height: calc(100% - 60px);')
+        chat_container = ui.column().classes('chat-scroll-container')
         
-        with ui.row().classes('w-full bg-white p-2 rounded-b-lg shadow-lg absolute bottom-0 left-0 right-0'):
-            message_input = ui.input(placeholder="Type your message here...").classes('w-full')
-            ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value)))
+        with ui.row().classes('chat-input-container w-full flex gap-2'):
+            message_input = ui.input(placeholder="Type your message here...").classes('flex-grow input-field')
+            ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value))).classes('send-button')
         
         message_input.on("keydown.enter", lambda: asyncio.create_task(handle_user_message(message_input.value)))
 
