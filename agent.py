@@ -127,15 +127,16 @@ class AgentFactory:
             description="Default agent configuration"
         )
     
-    def _build_system_prompt(self, config: AgentConfig) -> str:
+    def _build_system_prompt(self, config: AgentConfig, user_energy: str = None) -> str:
         """
-        Build the system prompt for the agent based on the configuration.
+        Build the system prompt for the agent based on the configuration and user energy.
         
         Args:
             config: Agent configuration
+            user_energy: Detected user energy level (high/medium/low) for behavioral adaptation
             
         Returns:
-            str: System prompt
+            str: System prompt adapted for user energy level
         """
         # Get personality trait descriptions
         personality_desc = []
@@ -158,6 +159,15 @@ class AgentFactory:
             domain_desc = f"You are a {config.expert_domain.replace('_', ' ')}: {domain_info['description']}.\n"
             domain_desc += f"Your key skills include: {', '.join(domain_info['skills'])}."
         
+        # Build energy-based adaptation if context awareness is enabled
+        energy_adaptation = ""
+        if (config.context_awareness.get("enabled") and 
+            config.context_awareness.get("behavioral_adaptation") and 
+            user_energy and 
+            config.expert_domain == "learning_partner"):
+            
+            energy_adaptation = self._get_energy_adaptation(user_energy)
+        
         # Build the complete system prompt
         system_prompt = f"""You are an AI assistant named {config.name}.
         
@@ -165,6 +175,8 @@ class AgentFactory:
 
 Your personality traits:
 {chr(10).join(f"- {trait}" for trait in personality_desc)}
+
+{energy_adaptation}
 
 Always maintain these traits in your responses. Your goal is to provide helpful, accurate, and appropriate responses to the user's queries.
 
@@ -176,6 +188,66 @@ Remember to:
 """
         
         return system_prompt
+    
+    def _get_energy_adaptation(self, user_energy: str) -> str:
+        """
+        Generate energy-specific behavioral adaptation for learning partner.
+        
+        Args:
+            user_energy: Detected user energy level (high/medium/low)
+            
+        Returns:
+            str: Energy-specific adaptation instructions
+        """
+        adaptations = {
+            "high": """
+ENERGY ADAPTATION - High Energy User Detected:
+Your user is energetic and motivated! Adapt your response style accordingly:
+
+• Suggest challenging, complex tasks and projects
+• Use an enthusiastic, energetic tone that matches their excitement
+• Recommend 20-30 minute session types (SYSTEM, INTEGRATE) 
+• Offer ambitious solutions and comprehensive approaches
+• Example responses: "Excellent energy! Want to build a complete system for automating evaluation runs across multiple models?"
+
+Session Types to Suggest:
+- SYSTEM: Building complete systems and architectures
+- INTEGRATE: Complex integration projects
+- DEEP_DIVE: Thorough exploration of advanced topics
+""",
+            "medium": """
+ENERGY ADAPTATION - Medium Energy User Detected:
+Your user has steady, balanced energy. Adapt your response style accordingly:
+
+• Suggest moderate complexity tasks with clear value
+• Use an informative, steady tone that builds confidence
+• Recommend 15-20 minute session types (AUTOMATE, VISUALIZE)
+• Offer practical, achievable solutions
+• Example responses: "Great! Should we create a practical dashboard for visualizing your evaluation results?"
+
+Session Types to Suggest:
+- AUTOMATE: Practical automation solutions
+- VISUALIZE: Data visualization and analysis
+- OPTIMIZE: Improving existing code and processes
+""",
+            "low": """
+ENERGY ADAPTATION - Low Energy User Detected:
+Your user has gentle, cautious energy. Adapt your response style accordingly:
+
+• Suggest simple, immediately achievable tasks
+• Use a gentle, supportive tone that encourages small wins
+• Recommend 10-15 minute session types (quick utilities)
+• Offer bite-sized, manageable solutions
+• Example responses: "No worries! Want to create a small utility script to help with evaluation data formatting? We can keep it simple."
+
+Session Types to Suggest:
+- UTILITY: Small helper scripts and tools
+- CLEANUP: Simple code organization tasks  
+- EXPLORE: Gentle exploration of concepts
+"""
+        }
+        
+        return adaptations.get(user_energy, "")
     
     def _setup_memory(self, config: AgentConfig) -> ConversationBufferMemory:
         """
@@ -209,12 +281,13 @@ Remember to:
             temperature=config.model_settings.get("temperature", 0.7)
         )
     
-    def create_agent(self, config_name: str = None) -> Tuple[Any, AgentConfig]:
+    def create_agent(self, config_name: str = None, user_energy: str = None) -> Tuple[Any, AgentConfig]:
         """
-        Create an agent with the specified configuration.
+        Create an agent with the specified configuration and optional energy context.
         
         Args:
             config_name: Name of the configuration to use (default: None, uses default config)
+            user_energy: Detected user energy level for behavioral adaptation
             
         Returns:
             Tuple[Any, AgentConfig]: Tuple containing the agent chain and the configuration
@@ -237,8 +310,8 @@ Remember to:
         # Set up the model
         model = self._setup_model(config)
         
-        # Build the prompt
-        system_prompt = self._build_system_prompt(config)
+        # Build the prompt with energy context
+        system_prompt = self._build_system_prompt(config, user_energy)
         prompt = ChatPromptTemplate.from_messages([
             ("system", system_prompt),
             MessagesPlaceholder(variable_name="chat_history"),
