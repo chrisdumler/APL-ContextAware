@@ -448,6 +448,21 @@ ui.add_head_html("""
     padding: 1.25rem;
     min-height: 100vh;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    position: relative;
+}
+
+/* Ensure proper panel stacking */
+.grid-cols-12 > * {
+    position: relative;
+    z-index: 1;
+}
+
+.context-panel {
+    z-index: 2 !important;
+}
+
+.config-panel {
+    z-index: 1 !important;
 }
 
 /* Form improvements */
@@ -481,26 +496,13 @@ ui.add_head_html("""
 </style>
 """)
 
-def toggle_config_panel():
-    config_panel.visible = not config_panel.visible
-    # Adjust layout based on config panel visibility with improved responsive behavior
-    if config_panel.visible:
-        chat_area.classes('col-span-6', remove='col-span-9')
-        context_panel.classes('col-span-3', remove='col-span-3')
-    else:
-        chat_area.classes('col-span-9', remove='col-span-6')
-    
-    ui.update()
-
-# Create the enhanced UI with improved layout
+# Create the enhanced UI with fixed 3-panel layout
 with ui.grid().classes('w-full h-screen grid-cols-12 main-container'):
     # Enhanced header spanning full width
     with ui.row().classes('col-span-12 main-header flex items-center justify-between'):
         ui.label("APL Context-Aware: Sophisticated Agent Platform").classes('text-xl md:text-2xl font-bold')
-        config_toggle = ui.button(icon='settings').classes('settings-button')
-        config_toggle.on_click(toggle_config_panel)
     
-    # Enhanced config panel (collapsible)
+    # Fixed config panel (always visible, left side)
     config_panel = ui.column().classes('col-span-3 config-panel flex flex-col h-[calc(100vh-140px)]')
     with config_panel:
         ui.label("Agent Configuration").classes('text-xl font-bold mb-4 text-gray-800')
@@ -517,15 +519,7 @@ with ui.grid().classes('w-full h-screen grid-cols-12 main-container'):
         if agent_config_select.value:
             handle_agent_config_change(agent_config_select.value)
     
-    # Enhanced context awareness panel
-    context_panel = ui.column().classes('col-span-3 context-panel flex flex-col h-[calc(100vh-140px)]')
-    with context_panel:
-        context_display_container = ui.column().classes('w-full')
-        # Initialize with placeholder content
-        ui.label("Context Awareness").classes('text-lg font-bold mb-2')
-        ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-80')
-    
-    # Enhanced main content area - chat interface
+    # Enhanced main content area - chat interface (middle)
     chat_area = ui.column().classes('col-span-6 chat-area flex flex-col h-[calc(100vh-140px)] relative')
     with chat_area:
         chat_container = ui.column().classes('chat-scroll-container')
@@ -535,6 +529,14 @@ with ui.grid().classes('w-full h-screen grid-cols-12 main-container'):
             ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value))).classes('send-button')
         
         message_input.on("keydown.enter", lambda: asyncio.create_task(handle_user_message(message_input.value)))
+    
+    # Enhanced context awareness panel (fixed position, right side)
+    context_panel = ui.column().classes('col-span-3 context-panel flex flex-col h-[calc(100vh-140px)]')
+    with context_panel:
+        context_display_container = ui.column().classes('w-full')
+        # Initialize with placeholder content
+        ui.label("Context Awareness").classes('text-lg font-bold mb-3')
+        ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-90 leading-relaxed')
 
 def run_app(port=8083):
     """
