@@ -178,9 +178,24 @@ async def handle_user_message(content: str) -> None:
     # Add the user message to the conversation
     add_message("user", content, context_info)
     
-    # Create the agent if it doesn't exist
-    if current_agent is None:
-        config_name = agent_config_select.value
+    # Create or recreate the agent with energy context
+    config_name = agent_config_select.value
+    
+    # Load agent config if not already loaded
+    if current_agent_config is None:
+        _, current_agent_config = agent_factory.create_agent(config_name)
+    
+    # If context awareness is enabled and we have energy detection, create agent with energy context
+    if (current_agent_config.context_awareness.get("enabled") and 
+        current_agent_config.context_awareness.get("behavioral_adaptation") and
+        context_info and context_info.get("energy")):
+        
+        detected_energy = context_info["energy"]
+        current_agent, current_agent_config = agent_factory.create_agent(config_name, detected_energy)
+        logger.info(f"Created energy-adapted agent for {detected_energy} energy level")
+        
+    elif current_agent is None:
+        # Create agent normally if no context or first time
         current_agent, current_agent_config = agent_factory.create_agent(config_name)
     
     # Show typing indicator
