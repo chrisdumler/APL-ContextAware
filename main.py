@@ -340,46 +340,87 @@ def rate_message(message_index: int, rating: int, feedback: str = "") -> None:
                     with chat_container:
                         format_message(msg)
 
-# Enhanced CSS for context awareness
+# Enhanced CSS for context awareness with fixed layout
 ui.add_head_html("""
 <style>
-/* Improved responsive design */
-@media (max-width: 768px) {
-    .grid-cols-12 {
-        grid-template-columns: 1fr !important;
-    }
-    .col-span-3, .col-span-9, .col-span-6 {
-        grid-column: span 12 !important;
-    }
-    .main-container {
-        gap: 0.5rem !important;
-        padding: 0.5rem !important;
+/* Base layout improvements */
+.main-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    gap: 1rem;
+    padding: 1rem;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    box-sizing: border-box;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr 280px;
+    gap: 1rem;
+    height: calc(100vh - 120px);
+    min-height: 600px;
+}
+
+/* Responsive design improvements */
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 250px 1fr 250px;
+        gap: 0.75rem;
     }
 }
 
-@media (min-width: 1200px) {
-    .main-container {
-        max-width: 1400px;
+@media (max-width: 768px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        height: auto;
+        min-height: calc(100vh - 120px);
+    }
+    
+    .config-panel, .context-panel {
+        height: auto !important;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+    
+    .chat-area {
+        height: 500px !important;
+    }
+}
+
+@media (min-width: 1400px) {
+    .content-grid {
+        grid-template-columns: 350px 1fr 320px;
+        max-width: 1600px;
         margin: 0 auto;
     }
 }
 
-/* Enhanced context panel styling */
-.context-panel {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-}
-
-/* Improved configuration panel */
+/* Panel styling improvements */
 .config-panel {
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     border: 1px solid #e2e8f0;
     border-radius: 12px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
     padding: 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.context-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Enhanced chat area */
@@ -388,25 +429,30 @@ ui.add_head_html("""
     border-radius: 12px;
     box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
     border: 1px solid #e5e7eb;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
 }
 
-.chat-input-container {
-    position: sticky;
-    bottom: 0;
-    background: white;
-    z-index: 10;
-    border-top: 1px solid #e5e7eb;
-    padding: 1rem;
-}
-
 .chat-scroll-container {
-    height: calc(100% - 80px);
+    flex: 1;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
     padding: 1rem;
     background: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.chat-input-container {
+    flex-shrink: 0;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
 }
 
 /* Header improvements */
@@ -415,21 +461,10 @@ ui.add_head_html("""
     color: white;
     padding: 1rem 1.5rem;
     border-radius: 12px;
-    margin-bottom: 1rem;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-/* Settings button improvements */
-.settings-button {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    border-radius: 8px !important;
-    transition: all 0.2s ease !important;
-}
-
-.settings-button:hover {
-    background: rgba(255, 255, 255, 0.3) !important;
-    transform: translateY(-1px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* Message styling improvements */
@@ -438,31 +473,8 @@ ui.add_head_html("""
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     padding: 1rem;
-    margin-bottom: 0.75rem;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-}
-
-/* Layout spacing improvements */
-.main-container {
-    gap: 1.25rem;
-    padding: 1.25rem;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-    position: relative;
-}
-
-/* Ensure proper panel stacking */
-.grid-cols-12 > * {
-    position: relative;
-    z-index: 1;
-}
-
-.context-panel {
-    z-index: 2 !important;
-}
-
-.config-panel {
-    z-index: 1 !important;
+    margin-bottom: 0;
 }
 
 /* Form improvements */
@@ -472,11 +484,13 @@ ui.add_head_html("""
     padding: 0.75rem 1rem !important;
     font-size: 1rem !important;
     transition: all 0.2s ease !important;
+    flex: 1;
 }
 
 .input-field:focus {
     border-color: #3b82f6 !important;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    outline: none !important;
 }
 
 .send-button {
@@ -487,56 +501,138 @@ ui.add_head_html("""
     color: white !important;
     font-weight: 600 !important;
     transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    flex-shrink: 0;
 }
 
 .send-button:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
+
+/* Agent info styling */
+.agent-info-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.agent-info-container label {
+    display: block;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+/* Select dropdown improvements */
+.agent-select {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+    border-radius: 8px !important;
+    border: 1px solid #d1d5db !important;
+    padding: 0.75rem !important;
+    background: white !important;
+}
+
+/* Context display improvements */
+.context-display-container label {
+    display: block;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+/* Scrollbar styling */
+.config-panel::-webkit-scrollbar,
+.context-panel::-webkit-scrollbar,
+.chat-scroll-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.config-panel::-webkit-scrollbar-track,
+.context-panel::-webkit-scrollbar-track,
+.chat-scroll-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+}
+
+.config-panel::-webkit-scrollbar-thumb,
+.context-panel::-webkit-scrollbar-thumb,
+.chat-scroll-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+}
+
+.config-panel::-webkit-scrollbar-thumb:hover,
+.context-panel::-webkit-scrollbar-thumb:hover,
+.chat-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure no overlapping */
+* {
+    box-sizing: border-box;
+}
+
+/* Fix any potential z-index issues */
+.main-header {
+    z-index: 10;
+}
+
+.config-panel {
+    z-index: 1;
+}
+
+.chat-area {
+    z-index: 1;
+}
+
+.context-panel {
+    z-index: 1;
+}
 </style>
 """)
 
 # Create the enhanced UI with fixed 3-panel layout
-with ui.grid().classes('w-full h-screen grid-cols-12 main-container'):
-    # Enhanced header spanning full width
-    with ui.row().classes('col-span-12 main-header flex items-center justify-between'):
+with ui.column().classes('main-container'):
+    # Enhanced header
+    with ui.row().classes('main-header'):
         ui.label("APL Context-Aware: Sophisticated Agent Platform").classes('text-xl md:text-2xl font-bold')
     
-    # Fixed config panel (always visible, left side)
-    config_panel = ui.column().classes('col-span-3 config-panel flex flex-col h-[calc(100vh-140px)]')
-    with config_panel:
-        ui.label("Agent Configuration").classes('text-xl font-bold mb-4 text-gray-800')
+    # Content grid with 3 panels
+    with ui.row().classes('content-grid'):
+        # Fixed config panel (left side)
+        with ui.column().classes('config-panel'):
+            ui.label("Agent Configuration").classes('text-xl font-bold mb-4 text-gray-800')
+            
+            agent_config_select = ui.select(
+                options=list_agent_configs(),
+                value=list_agent_configs()[0] if list_agent_configs() else None,
+                on_change=lambda e: handle_agent_config_change(e.value)
+            ).classes('agent-select')
+            
+            with ui.column().classes('agent-info-container'):
+                agent_info_container = ui.column().classes('w-full')
+            
+            if agent_config_select.value:
+                handle_agent_config_change(agent_config_select.value)
         
-        agent_config_select = ui.select(
-            options=list_agent_configs(),
-            value=list_agent_configs()[0] if list_agent_configs() else None,
-            on_change=lambda e: handle_agent_config_change(e.value)
-        ).classes('w-full mb-4 input-field')
+        # Enhanced main content area - chat interface (middle)
+        with ui.column().classes('chat-area'):
+            chat_container = ui.column().classes('chat-scroll-container')
+            
+            with ui.row().classes('chat-input-container'):
+                message_input = ui.input(placeholder="Type your message here...").classes('input-field')
+                ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value))).classes('send-button')
+            
+            message_input.on("keydown.enter", lambda: asyncio.create_task(handle_user_message(message_input.value)))
         
-        with ui.column().classes('w-full flex-grow overflow-y-auto'):
-            agent_info_container = ui.column().classes('w-full')
-        
-        if agent_config_select.value:
-            handle_agent_config_change(agent_config_select.value)
-    
-    # Enhanced main content area - chat interface (middle)
-    chat_area = ui.column().classes('col-span-6 chat-area flex flex-col h-[calc(100vh-140px)] relative')
-    with chat_area:
-        chat_container = ui.column().classes('chat-scroll-container')
-        
-        with ui.row().classes('chat-input-container w-full flex gap-2'):
-            message_input = ui.input(placeholder="Type your message here...").classes('flex-grow input-field')
-            ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value))).classes('send-button')
-        
-        message_input.on("keydown.enter", lambda: asyncio.create_task(handle_user_message(message_input.value)))
-    
-    # Enhanced context awareness panel (fixed position, right side)
-    context_panel = ui.column().classes('col-span-3 context-panel flex flex-col h-[calc(100vh-140px)]')
-    with context_panel:
-        context_display_container = ui.column().classes('w-full')
-        # Initialize with placeholder content
-        ui.label("Context Awareness").classes('text-lg font-bold mb-3')
-        ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-90 leading-relaxed')
+        # Enhanced context awareness panel (right side)
+        with ui.column().classes('context-panel'):
+            with ui.column().classes('context-display-container'):
+                context_display_container = ui.column().classes('w-full')
+                # Initialize with placeholder content
+                ui.label("Context Awareness").classes('text-lg font-bold mb-3')
+                ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-90 leading-relaxed')
 
 def run_app(port=8083):
     """
