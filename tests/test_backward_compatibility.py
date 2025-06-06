@@ -4,6 +4,9 @@ Test backward compatibility with existing agent configurations.
 Ensures non-context-aware agents work normally and unchanged.
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agent import AgentFactory, AgentConfig
 
 

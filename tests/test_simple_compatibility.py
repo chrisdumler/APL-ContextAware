@@ -4,6 +4,9 @@ Simple backward compatibility test focusing on prompt generation.
 Tests that existing agent types don't get energy adaptations.
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agent import AgentFactory, AgentConfig
 from utils import load_agent_config
 

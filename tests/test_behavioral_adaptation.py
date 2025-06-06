@@ -4,6 +4,9 @@ Test suite for behavioral adaptation in AgentFactory.
 Tests the energy-based prompt generation for learning partner agent.
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from agent import AgentFactory, AgentConfig
 
 

@@ -4,6 +4,9 @@ Demo test for learning partner behavioral adaptation.
 Shows clear behavioral differences across all energy levels with realistic scenarios.
 """
 
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from context_manager import ContextManager
 from agent import AgentFactory
 
