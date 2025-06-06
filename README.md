@@ -5,6 +5,7 @@
 ## Overview
 
 APL Context-Aware extends the original APL platform to support sophisticated agent profiles that can:
+
 - **Detect user context** (energy levels, session state, emotional indicators)
 - **Adapt behavior dynamically** based on detected context
 - **Maintain stateful awareness** beyond simple conversation memory
@@ -15,16 +16,19 @@ This enhanced version addresses the limitation of the original APL in handling c
 ## Key Enhancements
 
 ### Context Awareness System
+
 - **Energy Level Detection**: Automatically detects user energy (high/medium/low) from input patterns
 - **Behavioral Adaptation**: Adjusts response style, complexity, and suggestions based on context
 - **Context Visualization**: Real-time display of detected context for transparency
 
 ### Enhanced Agent Architecture
+
 - **Sophisticated Profiles**: Support for multi-dimensional behavioral frameworks
 - **Dynamic Prompt Generation**: Context-aware system prompts that adapt in real-time
 - **Stateful Memory**: Extended memory systems that track user patterns and preferences
 
 ### Advanced Evaluation
+
 - **Context Appropriateness Metrics**: Evaluate how well agents match their responses to detected context
 - **Behavioral Consistency**: Measure consistency of adaptations across similar contexts
 - **Comparative Analysis**: Side-by-side evaluation of context-aware vs standard agents
@@ -70,17 +74,20 @@ The primary demo showcases a **Context-Aware Learning Partner** that adapts its 
 ## Installation
 
 1. **Clone or copy from original APL**:
+
    ```bash
    cp -r /Users/chrisdumler/Projects/APL /Users/chrisdumler/Projects/APL-ContextAware
    cd /Users/chrisdumler/Projects/APL-ContextAware
    ```
 
 2. **Install dependencies**:
+
    ```bash
    pip install -r requirements.txt
    ```
 
 3. **Configure API keys**:
+
    ```bash
    cp config/.env.example config/.env
    # Edit config/.env with your API keys
@@ -89,16 +96,19 @@ The primary demo showcases a **Context-Aware Learning Partner** that adapts its 
 ## Usage
 
 ### Basic Operation
+
 ```bash
 python run.py --port 8083
 ```
 
 ### Demo Mode
+
 ```bash
 python demos/learning_partner.py
 ```
 
 ### Comparison Mode
+
 ```bash
 python demos/comparison_demo.py
 ```
@@ -106,19 +116,25 @@ python demos/comparison_demo.py
 ## Context-Aware Features
 
 ### Energy Detection
+
 The system automatically detects user energy levels through:
+
 - **Language patterns**: Enthusiastic vs. hesitant language
 - **Request complexity**: Ambitious vs. simple task requests
 - **Conversation patterns**: Rapid engagement vs. short responses
 
 ### Behavioral Adaptation
+
 Agents adapt their responses by adjusting:
+
 - **Complexity level**: Simple tasks for low energy, complex challenges for high energy
 - **Response style**: Energetic and direct vs. gentle and supportive
 - **Session suggestions**: Appropriate duration and scope for detected energy
 
 ### Context Visualization
+
 The enhanced UI displays:
+
 - **Detected Context**: Real-time energy level and confidence
 - **Adaptation Reasoning**: Why the agent chose specific behaviors
 - **Context History**: Patterns over time for learning insights
@@ -126,11 +142,13 @@ The enhanced UI displays:
 ## Evaluation Framework
 
 ### Context Appropriateness Metrics
+
 - **Energy Match Score**: How well response complexity matches detected energy
 - **Adaptation Consistency**: Reliability of behavioral changes
 - **User Satisfaction**: Preference ratings for context-aware vs. standard responses
 
 ### Comparative Analysis
+
 - **A/B Testing**: Direct comparison between context-aware and standard agents
 - **Performance Metrics**: Task completion, engagement, satisfaction
 - **Behavioral Analytics**: Patterns in context detection and adaptation
