@@ -152,3 +152,6 @@ config/production.py
 # Cache directories
 cache/
 .cache/
+
+# Conversation data (runtime generated)
+data/conversations/

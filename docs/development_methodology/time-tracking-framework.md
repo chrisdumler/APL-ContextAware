@@ -1,11 +1,13 @@
 # Time Tracking Framework for AI Collaborative Development
 
 ## Purpose
+
 Track actual time investment vs. estimates to improve methodology and future project planning.
 
 ## Tracking Points
 
 ### Work Request Level
+
 - **Estimate:** Initial time estimate in work request
 - **Start:** When coding agent begins implementation
 - **Checkpoints:** Time at each human-in-loop checkpoint
@@ -13,11 +15,13 @@ Track actual time investment vs. estimates to improve methodology and future pro
 - **Total:** Actual implementation time vs. estimate
 
 ### Communication Overhead
+
 - **Q&A Time:** Time spent in clarification cycles
 - **Review Time:** Human PM time reviewing standup reports and making decisions
 - **Context Switching:** Time between work requests and setup
 
 ### Checkpoint Granularity
+
 - **Checkpoint 1:** Foundation implementation time
 - **Checkpoint 2:** Integration implementation time  
 - **Checkpoint 3:** Polish and completion time
@@ -25,7 +29,9 @@ Track actual time investment vs. estimates to improve methodology and future pro
 ## Implementation
 
 ### For Work Requests
+
 Add timestamp tracking section:
+
 ```markdown
 ## TIME TRACKING
 **Estimated Duration:** [X hours]
@@ -40,7 +46,9 @@ Add timestamp tracking section:
 ```
 
 ### For Standup Reports
+
 Add time assessment:
+
 ```markdown
 ## TIME INVESTMENT ANALYSIS
 **Total Time:** [X.X hours]
@@ -60,12 +68,14 @@ Add time assessment:
 ## Data Collection Goals
 
 ### Short-term (This Project)
+
 - Validate 2-3 hour sprint estimates
 - Identify communication overhead
 - Understand checkpoint time distribution
 - Measure human review time investment
 
 ### Long-term (Future Projects)  
+
 - Build estimation models for different work types
 - Identify patterns in AI coding agent performance
 - Optimize communication processes
@@ -74,11 +84,13 @@ Add time assessment:
 ## Retrospective Analysis
 
 ### After Each Work Request
+
 - Compare estimate to actual
 - Identify estimation blind spots
 - Note process improvements
 
 ### After Project Completion
+
 - Overall velocity analysis
 - Communication efficiency assessment
 - Methodology refinement recommendations
