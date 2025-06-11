@@ -356,45 +356,74 @@ ui.add_head_html("""
 }
 
 .content-grid {
-    display: grid;
-    grid-template-columns: 300px 1fr 280px;
+    display: flex;
     gap: 1rem;
     height: calc(100vh - 120px);
     min-height: 600px;
+    max-width: 1800px;
+    margin: 0 auto;
+    align-items: stretch;
 }
 
-/* Responsive design improvements */
-@media (max-width: 1024px) {
-    .content-grid {
-        grid-template-columns: 250px 1fr 250px;
-        gap: 0.75rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .content-grid {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto 1fr;
-        height: auto;
-        min-height: calc(100vh - 120px);
+/* Flexible responsive design */
+@media (max-width: 1200px) {
+    .config-panel {
+        width: 280px;
+        min-width: 260px;
+        max-width: 320px;
     }
     
-    .config-panel, .context-panel {
-        height: auto !important;
-        max-height: 300px;
-        overflow-y: auto;
+    .context-panel {
+        width: 280px;
+        min-width: 240px;
+        max-width: 300px;
     }
     
     .chat-area {
-        height: 500px !important;
+        min-width: 350px;
+        max-width: 700px;
     }
 }
 
-@media (min-width: 1400px) {
+@media (max-width: 900px) {
     .content-grid {
-        grid-template-columns: 350px 1fr 320px;
-        max-width: 1600px;
-        margin: 0 auto;
+        flex-direction: column;
+        height: auto;
+        min-height: calc(100vh - 120px);
+        gap: 0.75rem;
+    }
+    
+    .config-panel, .context-panel {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+        height: auto;
+        max-height: 300px;
+        flex: 0 0 auto;
+    }
+    
+    .chat-area {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+        height: 500px;
+        flex: 1 0 auto;
+    }
+}
+
+@media (min-width: 1600px) {
+    .content-grid {
+        max-width: 1800px;
+    }
+    
+    .config-panel {
+        width: 350px;
+        max-width: 400px;
+    }
+    
+    .context-panel {
+        width: 320px;
+        max-width: 350px;
     }
 }
 
@@ -409,6 +438,10 @@ ui.add_head_html("""
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    flex: 0 0 auto;
+    min-width: 280px;
+    max-width: 400px;
+    width: 320px;
 }
 
 .context-panel {
@@ -421,6 +454,10 @@ ui.add_head_html("""
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    flex: 0 0 auto;
+    min-width: 260px;
+    max-width: 350px;
+    width: 300px;
 }
 
 /* Enhanced chat area */
@@ -433,6 +470,9 @@ ui.add_head_html("""
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    flex: 1 1 auto;
+    min-width: 400px;
+    max-width: 800px;
 }
 
 .chat-scroll-container {
