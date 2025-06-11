@@ -353,6 +353,7 @@ ui.add_head_html("""
     min-height: 100vh;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     box-sizing: border-box;
+    transition: all 0.3s ease;
 }
 
 .content-grid {
@@ -363,10 +364,29 @@ ui.add_head_html("""
     max-width: 1800px;
     margin: 0 auto;
     align-items: stretch;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Flexible responsive design */
+/* Ultra-smooth responsive design with gradual transitions */
+@media (max-width: 1400px) {
+    .content-grid {
+        gap: 0.875rem;
+    }
+    
+    .config-panel {
+        width: 300px;
+    }
+    
+    .context-panel {
+        width: 290px;
+    }
+}
+
 @media (max-width: 1200px) {
+    .content-grid {
+        gap: 0.75rem;
+    }
+    
     .config-panel {
         width: 280px;
         min-width: 260px;
@@ -374,7 +394,7 @@ ui.add_head_html("""
     }
     
     .context-panel {
-        width: 280px;
+        width: 270px;
         min-width: 240px;
         max-width: 300px;
     }
@@ -382,6 +402,23 @@ ui.add_head_html("""
     .chat-area {
         min-width: 350px;
         max-width: 700px;
+    }
+}
+
+@media (max-width: 1000px) {
+    .main-container {
+        padding: 0.75rem;
+        gap: 0.75rem;
+    }
+    
+    .config-panel {
+        width: 260px;
+        padding: 1.25rem;
+    }
+    
+    .context-panel {
+        width: 250px;
+        padding: 1.25rem;
     }
 }
 
@@ -398,32 +435,58 @@ ui.add_head_html("""
         min-width: unset;
         max-width: unset;
         height: auto;
-        max-height: 300px;
+        max-height: 280px;
         flex: 0 0 auto;
+        padding: 1rem;
     }
     
     .chat-area {
         width: 100%;
         min-width: unset;
         max-width: unset;
-        height: 500px;
+        height: 450px;
         flex: 1 0 auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .main-container {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+    
+    .content-grid {
+        gap: 0.5rem;
+    }
+    
+    .config-panel, .context-panel {
+        max-height: 250px;
+        padding: 0.875rem;
+        border-radius: 8px;
+    }
+    
+    .chat-area {
+        height: 400px;
+        border-radius: 8px;
     }
 }
 
 @media (min-width: 1600px) {
     .content-grid {
         max-width: 1800px;
+        gap: 1.25rem;
     }
     
     .config-panel {
         width: 350px;
         max-width: 400px;
+        padding: 1.75rem;
     }
     
     .context-panel {
         width: 320px;
         max-width: 350px;
+        padding: 1.75rem;
     }
 }
 
@@ -442,6 +505,7 @@ ui.add_head_html("""
     min-width: 280px;
     max-width: 400px;
     width: 320px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .context-panel {
@@ -458,6 +522,9 @@ ui.add_head_html("""
     min-width: 260px;
     max-width: 350px;
     width: 300px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
 }
 
 /* Enhanced chat area */
@@ -473,6 +540,7 @@ ui.add_head_html("""
     flex: 1 1 auto;
     min-width: 400px;
     max-width: 800px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .chat-scroll-container {
@@ -613,21 +681,36 @@ ui.add_head_html("""
     box-sizing: border-box;
 }
 
-/* Fix any potential z-index issues */
+/* Enhanced z-index hierarchy for settings overlay support */
 .main-header {
     z-index: 10;
+    position: relative;
 }
 
 .config-panel {
     z-index: 1;
+    position: relative;
 }
 
 .chat-area {
     z-index: 1;
+    position: relative;
 }
 
 .context-panel {
-    z-index: 1;
+    z-index: 2;
+    position: relative;
+}
+
+/* Settings and overlay support */
+.settings-overlay {
+    z-index: 50;
+    position: fixed;
+}
+
+.dropdown-menu {
+    z-index: 100;
+    position: absolute;
 }
 </style>
 """)
