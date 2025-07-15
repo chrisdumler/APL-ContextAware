@@ -346,6 +346,59 @@ Session Types to Suggest:
         
         return chain_with_memory, config
     
+    def create_agent_from_config(self, config: AgentConfig, user_energy: str = None) -> Any:
+        """
+        Create an agent from an AgentConfig object directly.
+        
+        Args:
+            config: AgentConfig object to use
+            user_energy: Detected user energy level for behavioral adaptation
+            
+        Returns:
+            Agent chain ready for invocation
+        """
+        # Set up the memory
+        memory = self._setup_memory(config)
+        
+        # Set up the model
+        model = self._setup_model(config)
+        
+        # Build the prompt with energy context
+        system_prompt = self._build_system_prompt(config, user_energy)
+        prompt = ChatPromptTemplate.from_messages([
+            ("system", system_prompt),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{input}")
+        ])
+        
+        # Build the chain
+        chain = (
+            RunnablePassthrough.assign(
+                chat_history=lambda x: memory.load_memory_variables({})["chat_history"]
+            )
+            | prompt
+            | model
+            | RunnableLambda(lambda x: {"output": x.content})
+        )
+        
+        # Create a function to handle both chain execution and memory updating
+        def run_chain_with_memory(inputs):
+            # Run the chain
+            outputs = chain.invoke(inputs)
+            
+            # Update memory
+            memory.save_context(
+                {"input": inputs["input"]},
+                {"output": outputs["output"]}
+            )
+            
+            return outputs
+        
+        # Use RunnableLambda instead of hooks for memory management
+        chain_with_memory = RunnableLambda(run_chain_with_memory)
+        
+        return chain_with_memory
+    
     def save_config(self, config: AgentConfig) -> None:
         """
         Save an agent configuration.

@@ -8,6 +8,7 @@ and sophisticated agent interaction capabilities.
 import os
 import uuid
 import asyncio
+import json
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -17,6 +18,7 @@ from langchain_openai import ChatOpenAI
 
 from agent import AgentFactory, AgentConfig
 from context_manager import ContextManager
+from cultural_edge_tester import CulturalEdgeTester
 from utils import (
     load_config, 
     save_conversation, 
@@ -29,9 +31,10 @@ from utils import (
 # Load configuration
 config = load_config()
 
-# Initialize the agent factory and context manager
+# Initialize the agent factory, context manager, and cultural edge tester
 agent_factory = AgentFactory()
 context_manager = ContextManager()
+cultural_edge_tester = CulturalEdgeTester(context_manager, agent_factory)
 
 # Initialize global variables
 current_agent = None
@@ -779,47 +782,286 @@ ui.add_head_html("""
 </style>
 """)
 
-# Create the enhanced UI with fixed 3-panel layout
+# Global variables for edge case testing
+current_scenario = None
+current_test_result = None
+edge_case_results = []
+scenario_container = None
+results_container = None
+
+def create_edge_case_testing_ui():
+    """Create the edge case testing interface."""
+    global current_scenario, current_test_result, edge_case_results, scenario_container, results_container
+    
+    with ui.column().classes('w-full max-w-6xl mx-auto p-6'):
+        # Header
+        ui.label("Cultural Edge Case Testing").classes('text-2xl font-bold mb-4')
+        ui.label("Test how cultural communication patterns can fool energy detection systems").classes('text-gray-600 mb-6')
+        
+        # Control panel
+        with ui.row().classes('w-full mb-6 gap-4'):
+            ui.button("Generate Cultural Scenario", on_click=generate_cultural_scenario).classes('bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded')
+            ui.button("Run Edge Case Test", on_click=run_edge_case_test).classes('bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded')
+            ui.button("Export Results", on_click=export_edge_case_results).classes('bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded')
+            ui.label(f"Tests Run: {len(edge_case_results)}").classes('text-sm text-gray-600 self-center')
+        
+        # Results container
+        with ui.column().classes('w-full'):
+            scenario_container = ui.column().classes('w-full')
+            results_container = ui.column().classes('w-full')
+
+async def generate_cultural_scenario():
+    """Generate a new cultural scenario."""
+    global current_scenario, scenario_container
+    
+    try:
+        # Generate scenario
+        current_scenario = cultural_edge_tester.generate_cultural_scenario()
+        
+        # Clear previous content
+        scenario_container.clear()
+        
+        # Display scenario
+        with scenario_container:
+            with ui.card().classes('w-full mb-4'):
+                ui.label("Cultural Scenario Generated").classes('text-lg font-bold mb-2')
+                
+                with ui.column().classes('w-full gap-3'):
+                    ui.label(f"Title: {current_scenario.title}").classes('font-semibold')
+                    ui.label(f"Description: {current_scenario.description}").classes('text-sm text-gray-600')
+                    
+                    # User message
+                    with ui.column().classes('w-full'):
+                        ui.label("User Message:").classes('font-semibold')
+                        ui.label(current_scenario.user_message).classes('bg-gray-100 p-3 rounded italic')
+                    
+                    # Cultural context
+                    with ui.column().classes('w-full'):
+                        ui.label("Cultural Context:").classes('font-semibold')
+                        ui.label(current_scenario.cultural_context).classes('bg-blue-50 p-3 rounded text-sm')
+                    
+                    # Detection results
+                    with ui.row().classes('w-full gap-4'):
+                        with ui.column().classes('flex-1'):
+                            ui.label("Expected Energy:").classes('font-semibold')
+                            ui.label(current_scenario.expected_energy.title()).classes('text-green-600 font-bold')
+                        
+                        with ui.column().classes('flex-1'):
+                            ui.label("Detected Energy:").classes('font-semibold')
+                            energy_color = 'text-red-600' if current_scenario.detection_failure else 'text-green-600'
+                            ui.label(current_scenario.actual_energy.title()).classes(f'{energy_color} font-bold')
+                        
+                        with ui.column().classes('flex-1'):
+                            ui.label("Confidence:").classes('font-semibold')
+                            ui.label(f"{current_scenario.confidence:.1f}").classes('text-gray-700')
+                    
+                    # Detection failure indicator
+                    if current_scenario.detection_failure:
+                        ui.label("⚠️ Detection Failure Detected").classes('text-red-600 font-bold bg-red-50 p-2 rounded')
+                    else:
+                        ui.label("✅ Detection Successful").classes('text-green-600 font-bold bg-green-50 p-2 rounded')
+                    
+                    # Safety flags
+                    if current_scenario.safety_flags:
+                        ui.label("Safety Flags:").classes('font-semibold mt-2')
+                        for flag in current_scenario.safety_flags:
+                            ui.label(f"• {flag}").classes('text-orange-600 text-sm')
+        
+        ui.notify("Cultural scenario generated successfully!", color="positive")
+        
+    except Exception as e:
+        ui.notify(f"Error generating scenario: {str(e)}", color="negative")
+        logger.error(f"Error generating cultural scenario: {e}")
+
+async def run_edge_case_test():
+    """Run complete edge case test with both response types."""
+    global current_scenario, current_test_result, results_container
+    
+    if not current_scenario:
+        ui.notify("Please generate a cultural scenario first!", color="warning")
+        return
+    
+    try:
+        # Run the test with progress indication
+        ui.notify("Running edge case test... This may take a moment. If OpenAI API is unavailable, demo responses will be used.", color="info")
+        
+        # Add timeout and better error handling
+        import asyncio
+        try:
+            # Run in a way that won't block the UI
+            current_test_result = await asyncio.get_event_loop().run_in_executor(
+                None, cultural_edge_tester.run_edge_case_test, current_scenario
+            )
+        except Exception as api_error:
+            logger.warning(f"API error, using demo mode: {api_error}")
+            ui.notify("API connection issues detected. Using demo responses for demonstration.", color="warning")
+            current_test_result = cultural_edge_tester.run_edge_case_test(current_scenario)
+        
+        # Add to results history
+        edge_case_results.append(current_test_result)
+        
+        # Clear previous results
+        results_container.clear()
+        
+        # Display results
+        with results_container:
+            with ui.card().classes('w-full mb-4'):
+                ui.label("Edge Case Test Results").classes('text-lg font-bold mb-4')
+                
+                # Add demo mode indicator if responses are fallbacks
+                if "Error generating" in current_test_result.baseline_response or "Error generating" in current_test_result.adapted_response:
+                    ui.label("🔄 Demo Mode: Using fallback responses due to API connectivity").classes('text-orange-600 bg-orange-50 p-2 rounded mb-4 text-sm')
+                
+                # Side-by-side comparison
+                with ui.row().classes('w-full gap-4'):
+                    # Baseline response
+                    with ui.column().classes('flex-1'):
+                        ui.label("Baseline Response").classes('font-semibold text-blue-600 mb-2')
+                        ui.label("(Without Context Awareness)").classes('text-xs text-gray-500 mb-2')
+                        ui.label(current_test_result.baseline_response).classes('bg-blue-50 p-3 rounded text-sm border-l-4 border-blue-400')
+                    
+                    # Adapted response
+                    with ui.column().classes('flex-1'):
+                        ui.label("Adapted Response").classes('font-semibold text-green-600 mb-2')
+                        ui.label("(With Context Awareness)").classes('text-xs text-gray-500 mb-2')
+                        ui.label(current_test_result.adapted_response).classes('bg-green-50 p-3 rounded text-sm border-l-4 border-green-400')
+                
+                # Adaptation reasoning
+                with ui.column().classes('w-full mt-4'):
+                    ui.label("Adaptation Reasoning").classes('font-semibold mb-2')
+                    ui.label(current_test_result.adaptation_reasoning).classes('bg-gray-50 p-3 rounded text-sm whitespace-pre-wrap')
+                
+                # Safety assessment
+                with ui.column().classes('w-full mt-4'):
+                    ui.label("Safety Assessment").classes('font-semibold mb-2')
+                    assessment = current_test_result.safety_assessment
+                    
+                    with ui.row().classes('w-full gap-4'):
+                        ui.label(f"Risk Level: {assessment['risk_level'].title()}").classes('text-sm')
+                        ui.label(f"Adaptation: {assessment['adaptation_appropriateness'].title()}").classes('text-sm')
+                    
+                    if assessment['bias_concerns']:
+                        ui.label("Bias Concerns:").classes('font-semibold mt-2')
+                        for concern in assessment['bias_concerns']:
+                            ui.label(f"• {concern}").classes('text-orange-600 text-sm')
+                    
+                    if assessment['potential_harm']:
+                        ui.label("Potential Harm:").classes('font-semibold mt-2')
+                        for harm in assessment['potential_harm']:
+                            ui.label(f"• {harm}").classes('text-red-600 text-sm')
+        
+        ui.notify("Edge case test completed successfully!", color="positive")
+        
+    except Exception as e:
+        ui.notify(f"Error running edge case test. Please try again.", color="negative")
+        logger.error(f"Error running edge case test: {e}")
+        
+        # Show basic error information to user without crashing
+        if results_container:
+            results_container.clear()
+            with results_container:
+                with ui.card().classes('w-full mb-4 bg-red-50 border-red-200'):
+                    ui.label("Test Error").classes('text-lg font-bold text-red-700 mb-2')
+                    ui.label("Unable to complete the edge case test. This may be due to API connectivity issues.").classes('text-red-600 mb-2')
+                    ui.label("Please check your internet connection and API configuration, then try again.").classes('text-red-600')
+
+async def export_edge_case_results():
+    """Export edge case test results."""
+    global edge_case_results
+    
+    if not edge_case_results:
+        ui.notify("No test results to export!", color="warning")
+        return
+    
+    try:
+        # Export results
+        export_data = cultural_edge_tester.export_results(edge_case_results)
+        
+        # Create downloadable content
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"cultural_edge_case_results_{timestamp}.json"
+        
+        # Convert to JSON string
+        json_content = json.dumps(export_data, indent=2)
+        
+        # Create download
+        ui.download(json_content.encode(), filename)
+        
+        # Show export summary
+        ui.notify(f"Results exported and downloading as {filename}", color="positive")
+        
+        # Display summary dialog
+        with ui.dialog() as dialog, ui.card():
+            ui.label("Export Summary").classes('text-lg font-bold mb-4')
+            ui.label(f"Total Scenarios: {export_data['test_session']['total_scenarios']}")
+            ui.label(f"Detection Failures: {export_data['test_session']['detection_failures']}")
+            ui.label(f"Success Rate: {export_data['test_session']['success_rate']:.1f}%")
+            ui.label(f"File: {filename}").classes('text-sm text-gray-600 mt-2')
+            
+            with ui.row().classes('mt-4 gap-2'):
+                ui.button("Download Again", on_click=lambda: ui.download(json_content.encode(), filename)).classes('bg-blue-500 hover:bg-blue-600 text-white')
+                ui.button("Close", on_click=dialog.close).classes('bg-gray-500 hover:bg-gray-600 text-white')
+        
+        dialog.open()
+        
+    except Exception as e:
+        ui.notify(f"Error exporting results: {str(e)}", color="negative")
+        logger.error(f"Error exporting results: {e}")
+
+# Create the enhanced UI with tabbed interface
 with ui.column().classes('main-container'):
     # Enhanced header
     with ui.row().classes('main-header'):
         ui.label("APL Context-Aware: Sophisticated Agent Platform").classes('text-xl md:text-2xl font-bold')
     
-    # Content grid with 3 panels
-    with ui.row().classes('content-grid'):
-        # Fixed config panel (left side)
-        with ui.column().classes('config-panel'):
-            ui.label("Agent Configuration").classes('text-xl font-bold mb-4 text-gray-800')
-            
-            agent_config_select = ui.select(
-                options=list_agent_configs(),
-                value=list_agent_configs()[0] if list_agent_configs() else None,
-                on_change=lambda e: handle_agent_config_change(e.value)
-            ).classes('agent-select')
-            
-            with ui.column().classes('agent-info-container'):
-                agent_info_container = ui.column().classes('w-full')
-            
-            if agent_config_select.value:
-                handle_agent_config_change(agent_config_select.value)
+    # Tab navigation
+    with ui.tabs().classes('w-full') as tabs:
+        chat_tab = ui.tab('Chat Interface')
+        edge_case_tab = ui.tab('Edge Case Testing')
+    
+    # Tab panels
+    with ui.tab_panels(tabs, value=chat_tab).classes('w-full'):
+        # Chat Interface Tab
+        with ui.tab_panel(chat_tab):
+            # Content grid with 3 panels
+            with ui.row().classes('content-grid'):
+                # Fixed config panel (left side)
+                with ui.column().classes('config-panel'):
+                    ui.label("Agent Configuration").classes('text-xl font-bold mb-4 text-gray-800')
+                    
+                    agent_config_select = ui.select(
+                        options=list_agent_configs(),
+                        value=list_agent_configs()[0] if list_agent_configs() else None,
+                        on_change=lambda e: handle_agent_config_change(e.value)
+                    ).classes('agent-select')
+                    
+                    with ui.column().classes('agent-info-container'):
+                        agent_info_container = ui.column().classes('w-full')
+                    
+                    if agent_config_select.value:
+                        handle_agent_config_change(agent_config_select.value)
+                
+                # Enhanced main content area - chat interface (middle)
+                with ui.column().classes('chat-area'):
+                    chat_container = ui.column().classes('chat-scroll-container')
+                    
+                    with ui.row().classes('chat-input-container'):
+                        message_input = ui.input(placeholder="Type your message here...").classes('input-field')
+                        ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value))).classes('send-button')
+                    
+                    message_input.on("keydown.enter", lambda: asyncio.create_task(handle_user_message(message_input.value)))
+                
+                # Enhanced context awareness panel (right side)
+                with ui.column().classes('context-panel'):
+                    with ui.column().classes('context-display-container'):
+                        context_display_container = ui.column().classes('w-full')
+                        # Initialize with placeholder content
+                        ui.label("Context Awareness").classes('text-lg font-bold mb-3')
+                        ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-90 leading-relaxed')
         
-        # Enhanced main content area - chat interface (middle)
-        with ui.column().classes('chat-area'):
-            chat_container = ui.column().classes('chat-scroll-container')
-            
-            with ui.row().classes('chat-input-container'):
-                message_input = ui.input(placeholder="Type your message here...").classes('input-field')
-                ui.button("Send", on_click=lambda: asyncio.create_task(handle_user_message(message_input.value))).classes('send-button')
-            
-            message_input.on("keydown.enter", lambda: asyncio.create_task(handle_user_message(message_input.value)))
-        
-        # Enhanced context awareness panel (right side)
-        with ui.column().classes('context-panel'):
-            with ui.column().classes('context-display-container'):
-                context_display_container = ui.column().classes('w-full')
-                # Initialize with placeholder content
-                ui.label("Context Awareness").classes('text-lg font-bold mb-3')
-                ui.label("Select context-aware learning partner to see energy detection").classes('text-sm opacity-90 leading-relaxed')
+        # Edge Case Testing Tab
+        with ui.tab_panel(edge_case_tab):
+            create_edge_case_testing_ui()
 
 def run_app(port=8083):
     """

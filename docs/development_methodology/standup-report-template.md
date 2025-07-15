@@ -1,9 +1,11 @@
 # Standup Report Template for AI Coding Agents
 
 ## Purpose
+
 Provides regular status updates from coding agents to PMs, equivalent to daily standup meetings on human teams.
 
 ## When to Use
+
 - After completing any work request
 - At major checkpoints during long work requests
 - When encountering blockers or significant decisions
@@ -101,16 +103,19 @@ Provides regular status updates from coding agents to PMs, equivalent to daily s
 ## Communication Patterns
 
 ### Daily Standup Equivalent
+
 **Frequency:** After each work request completion  
 **Format:** Brief standup report  
 **Duration:** PM reads in 2-3 minutes
 
 ### Weekly Review Equivalent  
+
 **Frequency:** Weekly summary across multiple work requests  
 **Format:** Extended standup report with week's progress  
 **Duration:** More comprehensive review
 
 ### Emergency Standup
+
 **Frequency:** When blocked or major issues arise  
 **Format:** Focused standup report on specific blocker  
 **Duration:** Immediate PM attention needed

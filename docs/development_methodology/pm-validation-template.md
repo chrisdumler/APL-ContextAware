@@ -1,15 +1,18 @@
 # PM Validation Template
 
 ## Purpose
+
 Final validation response after PM has personally tested the work from a standup report, providing definitive acceptance/rejection and authorization for next steps.
 
 ## When to Use
+
 - After PM has completed hands-on testing of reported work
 - When converting conditional approval to final acceptance
 - For checkpoint validations where human testing is required
 - Before authorizing next work requests
 
 ## File Naming Convention
+
 `pm-validation-response-[number].md`
 
 ## Template Structure
@@ -117,18 +120,21 @@ Final validation response after PM has personally tested the work from a standup
 ## Validation Guidelines
 
 ### Testing Approach
+
 - **Hands-On Testing:** Actually use the implemented functionality
 - **Real Scenarios:** Test with realistic use cases, not just happy path
 - **Integration Verification:** Ensure new work integrates properly with existing system
 - **User Experience:** Evaluate from end-user perspective
 
 ### Decision Criteria
+
 - **Functionality:** Does it work as specified in the work request?
 - **Quality:** Does it meet the quality standards in the SLC definition?
 - **Integration:** Does it work well with existing features?
 - **Demo-Ready:** Is it ready for demonstration or production use?
 
 ### Authorization Standards
+
 - **Clear Scope:** Next work request must have well-defined boundaries
 - **Realistic Timeline:** Estimates based on observed AI coding patterns
 - **Quality Gates:** Appropriate validation checkpoints for next phase
