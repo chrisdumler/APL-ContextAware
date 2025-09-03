@@ -1,6 +1,6 @@
 # APL Context-Aware: Enhanced Agents Patterns Lab
 
-**Evolution of the Agents Patterns Lab to handle sophisticated, context-aware agent profiles.**
+**An experimental evolution of the Agents Patterns Lab to handle sophisticated, context-aware agent profiles.**
 
 ## Overview
 
