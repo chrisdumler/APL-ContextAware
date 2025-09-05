@@ -59,7 +59,6 @@ APL Context-Aware demonstrates **both** the technology for culturally intelligen
 - **Problem:** AI provides inconsistent service quality based on cultural communication style
 - **Solution:** Equitable response adaptation across diverse cultural contexts
 
-**[→ See complete use cases and ROI analysis](docs/USE_CASES.md)**
 
 ## Research Contribution
 
@@ -74,7 +73,6 @@ This work addresses a gap in AI evaluation methodology. As AI systems become mor
 **Industry Impact:** Quality assurance framework for culturally-sensitive AI deployment  
 **Social Impact:** More equitable AI interactions for global diverse populations
 
-**[→ Read the complete research methodology](docs/RESEARCH_OVERVIEW.md)**
 
 ## Technical Innovation
 
@@ -142,8 +140,6 @@ python main.py --port 8083
 APL-ContextAware/
 ├── README.md                    # This file - project overview and quick start
 ├── docs/
-│   ├── RESEARCH_OVERVIEW.md     # Research methodology and contribution
-│   ├── USE_CASES.md            # Practical applications and scenarios  
 │   └── development_methodology/ # AI-human collaborative development process
 ├── context_manager.py          # Cultural pattern detection and energy analysis
 ├── cultural_edge_tester.py     # Novel bias detection and evaluation framework
@@ -189,8 +185,6 @@ This project also demonstrates a novel **AI-Human Collaborative Development Fram
 
 ## Next Steps
 
-- **Researchers:** **[Explore research methodology →](docs/RESEARCH_OVERVIEW.md)**
-- **Product Teams:** **[See practical applications →](docs/USE_CASES.md)**
 - **Contributors:** **[Learn collaboration framework →](docs/development_methodology/)**
 
 ---
